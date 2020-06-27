@@ -9,7 +9,8 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     1.4
+// @version     1.4.1
+// @icon        
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
 // @grant       GM_xmlhttpRequest
@@ -21,7 +22,7 @@
     const errorLimiter = 1000;
     const debug = false;
     const maxErrors = 5;
-    const filterBackgroundColor = 'rgba(103, 193, 245, 0.2)';
+    const filterBackgroundColor = '#171A21E6';
     let errors = 0;
     let bots;
     let assets = [];
@@ -192,6 +193,7 @@
         let globalThem = "";
         let matches = "";
         let any = "";
+        let appIdArray = [];
         if (bots[index].match_everything == 1) {
             any = `&nbsp;<sup><span class="avatar_block_status_in-game" style="font-size: 8px; cursor:help" title="This bots trades for any cards within same set">&nbsp;ANY&nbsp;</span></sup>`;
         }
@@ -200,7 +202,7 @@
             let itemToReceive = itemsToReceive.find(a => a.appId == appId);
             let gameName = itemsToSend[i].title;
             let display = "inline-block";
-
+            appIdArray.push("astm_" + appId);
             //remove placeholder
             let filterWidget = document.getElementById("asf_stm_filters_body");
             let placeholder = document.getElementById("asf_stm_placeholder");
@@ -240,6 +242,9 @@
                             <a href="${tradeUrlApp}" target="_blank" rel="noopener">Offer a trade</a>
                           </span>
                         </div>
+                        <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
+                          <span>Filter</span>
+                        </div>
                       </div>
                       <div class="showcase_slot">
                           <div class="showcase_slot profile_header">
@@ -271,12 +276,18 @@
                 globalThem += receiveResult.classList;
             }
         }
+        let output = JSON.stringify(appIdArray).replace(/"/g, '#');
         let tradeUrlFull = tradeUrl + "&them=" + globalThem + "&you=" + globalYou;
         let rowTemplate = `
             <div id="asfstmbot_${index}" class="badge_row">
               <div class="badge_row_inner">
                 <div class="badge_title_row guide_showcase_contributors">
                   <div class="badge_title_stats">
+                    <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
+                      <span>
+                        Filter all
+                      </span>
+                    </div>
                     <div class="btn_darkblue_white_innerfade btn_medium">
                       <span>
                         <a class="full_trade_url" href="${tradeUrlFull}" target="_blank" rel="noopener" >Offer a trade for all</a>
@@ -1023,9 +1034,8 @@
             </div>
           </div>
           <div id="asf_stm_filters" style="position: fixed; z-index: 1000; right: 5px; bottom: 45px; transition-duration: 500ms;
-                   transition-timing-function: ease; margin-right: -50%; padding: 5px; max-width: 40%; display: inline-block; border-radius: 2px;
-                   background:${filterBackgroundColor}; color: #67c1f5;">
-              <div style="white-space: nowrap;">Select:
+              transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
+            <div style="white-space: nowrap;">Select:
 	          <a id="asf_stm_filter_all" class="commentthread_pagelinks">
 		        all
 	          </a>
@@ -1057,6 +1067,39 @@
         stop = false;
         myBadges.length = 0;
         getBadges(1);
+    }
+
+    function addJS_Node (text, s_URL, funcToRun) {
+        let D = document;
+        let scriptNode = D.createElement ('script');
+        scriptNode.type = "text/javascript";
+        if (text) scriptNode.textContent = text;
+        if (s_URL) scriptNode.src = s_URL;
+        if (funcToRun) scriptNode.textContent = funcToRun.toString();
+        let target = D.getElementsByTagName ('head')[0] || D.body || D.documentElement;
+        target.appendChild (scriptNode);
+    }
+
+    function filterAppId (id, json) {
+        if (json) {
+            try {
+                let replaced = id.replace(/#/g, '"');
+                let parsed = JSON.parse(replaced);
+                parsed.forEach(x => {
+                    let elem = document.getElementById(x);
+                    if (elem.checked) {
+                        elem.click();
+                    }
+                });
+            } catch (e) {
+                console.error("Error: parsing failed: " + e);
+            }
+        } else {
+            let elem = document.getElementById(id);
+            if (elem) {
+                elem.click();
+            }
+        }
     }
 
     if (document.getElementsByClassName("badge_details_set_favorite").length != 0) {
@@ -1104,6 +1147,7 @@
                 let anchor = document.getElementsByClassName("profile_small_header_texture")[0];
                 anchor.appendChild(buttonDiv);
                 enableButton();
+                addJS_Node(null, null, filterAppId);
             },
             onerror: function(response) {
                 debugPrint("can't fetch list of bots");
