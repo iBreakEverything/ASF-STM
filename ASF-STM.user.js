@@ -10,7 +10,7 @@
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
 // @version     1.4.1
-// @icon        
+// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/beta/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
 // @grant       GM_xmlhttpRequest
