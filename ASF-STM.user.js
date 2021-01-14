@@ -9,7 +9,7 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     1.4.1
+// @version     1.5.0
 // @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/beta/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
@@ -237,11 +237,13 @@
                             <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">${gameName}</a>
                           </div>
                         </div>
-                        <div class="btn_darkblue_white_innerfade btn_medium">
-                          <span>
-                            <a href="${tradeUrlApp}" target="_blank" rel="noopener">Offer a trade</a>
-                          </span>
-                        </div>
+                        <a href="${tradeUrlApp}" target="_blank" rel="noopener">
+                          <div class="btn_darkblue_white_innerfade btn_medium">
+                            <span>
+                              Offer a trade
+                            </span>
+                          </div>
+                        </a>
                         <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
                           <span>Filter</span>
                         </div>
@@ -283,16 +285,24 @@
               <div class="badge_row_inner">
                 <div class="badge_title_row guide_showcase_contributors">
                   <div class="badge_title_stats">
+                    <div class="btn_darkblue_white_innerfade btn_medium" id="copy${index}">
+                      <span>
+                        Copy Trade Data
+                      </span>
+                      <input id="input${index}" type="text" value="" hidden>
+                    </div>
                     <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
                       <span>
                         Filter all
                       </span>
                     </div>
-                    <div class="btn_darkblue_white_innerfade btn_medium">
-                      <span>
-                        <a class="full_trade_url" href="${tradeUrlFull}" target="_blank" rel="noopener" >Offer a trade for all</a>
-                      </span>
-                    </div>
+                    <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener" >
+                      <div class="btn_darkblue_white_innerfade btn_medium">
+                        <span>
+                          Offer a trade for all
+                        </span>
+                      </div>
+                    </a>
                   </div>
                   <div class="badge_title">
                     ${botname}${any}
@@ -309,6 +319,32 @@
         let newChild = template.content.firstChild;
         mainContentDiv.appendChild(newChild);
         checkRow(newChild);
+        document.querySelector(`#copy${index}`).addEventListener("click", copy.bind(null, index), false);
+    }
+
+    function copy(index) {
+        let link = document.querySelector(`#full_trade_${index}`);
+        let data = link.href.split('?')[1].split('&');
+        let globalYou = data[3].split('=')[1];
+        let globalThem = data[4].split('=')[1];
+        let jsonThis = {
+            partner: {
+                steam3ID: getPartner(bots[index].steam_id),
+                steam64ID: bots[index].steam_id,
+                token: bots[index].trade_token
+            },
+            myClassIds: globalYou,
+            partnerClassIds: globalThem
+        }
+        let jsonedObject = JSON.stringify(jsonThis);
+        jsonedObject = jsonedObject.replace(/"/g, "#");
+
+        let copyText = document.querySelector(`#input${index}`);
+        copyText.hidden = false;
+		copyText.value = jsonedObject;
+        copyText.select();
+        document.execCommand("copy");
+        copyText.hidden = true;
     }
 
     function fetchInventory(steamId, startAsset, callback) {
