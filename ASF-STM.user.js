@@ -9,7 +9,7 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     1.5.0
+// @version     1.5.1
 // @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/beta/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
@@ -325,8 +325,8 @@
     function copy(index) {
         let link = document.querySelector(`#full_trade_${index}`);
         let data = link.href.split('?')[1].split('&');
-        let globalYou = data[3].split('=')[1];
-        let globalThem = data[4].split('=')[1];
+        let globalYou = data[4].split('=')[1];
+        let globalThem = data[3].split('=')[1];
         let jsonThis = {
             partner: {
                 steam3ID: getPartner(bots[index].steam_id),
