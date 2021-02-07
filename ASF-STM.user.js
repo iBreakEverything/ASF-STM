@@ -5,12 +5,15 @@
 // @description ASF bot list trade matcher
 // @license     Apache-2.0
 // @author      Ryzhehvost
+// @contributor iBreakEverything
+// @updateURL   https://github.com/iBreakEverything/ASF-STM/raw/stable/ASF-STM.user.js
+// @downloadURL https://github.com/iBreakEverything/ASF-STM/raw/stable/ASF-STM.user.js
 // @include     http*://steamcommunity.com/id/*/badges
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     1.5.1
-// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/beta/asf-stm.png
+// @version     1.5.2
+// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/stable/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
 // @grant       GM_xmlhttpRequest
