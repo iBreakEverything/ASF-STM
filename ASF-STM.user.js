@@ -12,7 +12,7 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     almost_2.0.0
+// @version     2.0.0-ish
 // @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/stable/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
