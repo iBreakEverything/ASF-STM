@@ -12,7 +12,7 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     almost_2.0.0
+// @version     2.0.0-ish
 // @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/stable/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
@@ -21,7 +21,7 @@
 
 (function() {
     "use strict";
-    const tradeMessage = 'Trade was sent from ASF-STM v2.0(beta)test2!';
+    const tradeMessage = 'Trade was sent using ASF-STM script version 2.0.0!';
     const limiter = 0;
     const errorLimiter = 1000;
     const debug = false;
