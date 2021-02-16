@@ -699,8 +699,7 @@
         let url = "https://steamcommunity.com/profiles/" + bots[index].steam_id + "?xml=1";
         let xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
-        xhr.responseType = "text"; //TODO: consider XML maybe?
-        //xhr.setRequestHeader("Range","bytes=0-200"); //fuck it, get the whole page
+        xhr.responseType = "text";
         xhr.onload = function() {
             let status = xhr.status;
             let username = bots[index].steam_id;
@@ -712,8 +711,8 @@
                 if (result) {
                     username = result[1];
                     debugPrint(username);
-                    addMatchRow(index, username);
                 }
+                addMatchRow(index, username);
                 callback();
             } else {
                 if (stop) {
