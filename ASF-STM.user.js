@@ -12,7 +12,7 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     2.0.2
+// @version     2.0.3
 // @icon        https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
@@ -433,21 +433,13 @@
         let retVal = {};
         retVal.number = numToStr; // full number
         retVal.color = '#7b7b7c'; // normal; < 50k
-        if (number > 75000) {
-            retVal.color = '#A34C25'; // danger; > 75k
-        } else if (number > 50000) {
-            retVal.color = '#B9A074'; // warning; > 50k
+        if (number > 65000) {
+            retVal.color = '#A34C25'; // danger; > 65k
+        } else if (number > 30000) {
+            retVal.color = '#B9A074'; // warning; > 30k
         }
-        if (len == 4) { // 4 digits
-            retVal.number = `${numToStr[0]}K`;
-        } else if (len == 5 && numToStr[0] < 5) { // 5 digits, less than 50k
-            retVal.number = `${numToStr.substring(0, 2)}K`;
-        } else if (len == 5 && numToStr[0] >= 5) { // 5 digits, more than 50k
-            retVal.number = `+${Math.floor(number / 5000) * 5}K`
-        } else if (len == 6) { // 6 digits
-            retVal.number = `+${Math.floor(number / 50000) * 50}K`
-        } else if (len > 6) { // more than 7 digits
-            retVal.number = `+${Math.floor(number / 1000000)}M`
+        if (len > 4) { // 4 digits
+            retVal.number = `${numToStr.substring(0, len - 3)}K`;
         }
         return retVal;
     }
