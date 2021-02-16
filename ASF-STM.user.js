@@ -12,8 +12,8 @@
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     2.0.0-ish
-// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/stable/asf-stm.png
+// @version     2.0.1
+// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/master/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
 // @grant       GM_xmlhttpRequest
@@ -287,7 +287,7 @@
 
         let output = JSON.stringify(appIdArray).replace(/"/g, '#');
         let tradeUrlFull = tradeUrl + "&them=" + globalThem + "&you=" + globalYou;
-
+        let invObject = inventoryCountParser(bots[index].items_count);
         let rowTemplate = `
             <div id="asfstmbot_${index}" class="badge_row">
               <div class="badge_row_inner">
@@ -312,7 +312,11 @@
                     </a>
                   </div>
                   <div class="badge_title">
-                    ${botname}${any}
+                    <div>
+                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${botname}</span></a>
+                      ${any}
+                      <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                    </div>
                   </div>
                 </div>
                 <div class="badge_title_rule"></div>
@@ -421,6 +425,31 @@
             }
         }
         return assetIDs;
+    }
+
+    function inventoryCountParser(number) {
+        let numToStr = number.toString();
+        let len = numToStr.length;
+        let retVal = {};
+        retVal.number = numToStr; // full number
+        retVal.color = '#7b7b7c'; // normal; < 50k
+        if (number > 75000) {
+            retVal.color = '#A34C25'; // danger; > 75k
+        } else if (number > 50000) {
+            retVal.color = '#B9A074'; // warning; > 50k
+        }
+        if (len == 4) { // 4 digits
+            retVal.number = `${numToStr[0]}K`;
+        } else if (len == 5 && numToStr[0] < 5) { // 5 digits, less than 50k
+            retVal.number = `${numToStr.substring(0, 2)}K`;
+        } else if (len == 5 && numToStr[0] >= 5) { // 5 digits, more than 50k
+            retVal.number = `+${Math.floor(number / 5000) * 5}K`
+        } else if (len == 6) { // 6 digits
+            retVal.number = `+${Math.floor(number / 50000) * 50}K`
+        } else if (len > 6) { // more than 7 digits
+            retVal.number = `+${Math.floor(number / 1000000)}M`
+        }
+        return retVal;
     }
 
     function fetchInventory(steamId, startAsset, callback) {
