@@ -444,7 +444,7 @@
         } else if (number > 30000) {
             retVal.color = '#B9A074'; // warning; > 30k
         }
-        if (len > 4) { // 4 digits
+        if (len > 3) { // 4 or more digits
             retVal.number = `${numToStr.substring(0, len - 3)}K`;
         }
         return retVal;
