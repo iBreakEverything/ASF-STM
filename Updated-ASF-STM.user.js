@@ -6,8 +6,8 @@
 // @license     Apache-2.0
 // @author      Ryzhehvost
 // @contributor iBreakEverything
-// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/userscript.user.js
-// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/userscript.user.js
+// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
+// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
 // @include     http*://steamcommunity.com/id/*/badges
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
