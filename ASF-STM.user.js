@@ -21,7 +21,7 @@
 
 (function() {
     "use strict";
-    const tradeMessage = 'Trade was sent using ASF-STM script version 2.0.0!';
+    const tradeMessage = `Trade was sent using ASF-STM script version ${GM_info.script.version}!`;
     const limiter = 0;
     const errorLimiter = 1000;
     const debug = false;
