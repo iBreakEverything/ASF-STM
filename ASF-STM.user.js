@@ -6,14 +6,14 @@
 // @license     Apache-2.0
 // @author      Ryzhehvost
 // @contributor iBreakEverything
-// @updateURL   https://github.com/iBreakEverything/ASF-STM/raw/stable/ASF-STM.user.js
-// @downloadURL https://github.com/iBreakEverything/ASF-STM/raw/stable/ASF-STM.user.js
+// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/raw/master/ASF-STM.user.js
+// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/raw/master/ASF-STM.user.js
 // @include     http*://steamcommunity.com/id/*/badges
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     1.5.2
-// @icon        https://raw.githubusercontent.com/iBreakEverything/ASF-STM/stable/asf-stm.png
+// @version     2.0.2
+// @icon        https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
 // @grant       GM_xmlhttpRequest
@@ -21,6 +21,7 @@
 
 (function() {
     "use strict";
+    const tradeMessage = `Trade was sent using ASF-STM script version ${GM_info.script.version}!`;
     const limiter = 0;
     const errorLimiter = 1000;
     const debug = false;
@@ -29,11 +30,14 @@
     let errors = 0;
     let bots;
     let assets = [];
+    let myAssets = [];
     let descriptions = [];
     let myBadges = [];
     let botBadges = [];
     let maxPages;
     let stop = false;
+    let sessionid = "";
+    let steamLoginSecure = "";
 
     function debugTime(name) {
         if (debug) {
@@ -227,7 +231,6 @@
 
             let sendResult = populateCards(itemsToSend[i]);
             let receiveResult = populateCards(itemToReceive);
-
             let tradeUrlApp = tradeUrl + "&them=" + receiveResult.classList + "&you=" + sendResult.classList;
 
             let matchTemplate = `
@@ -281,25 +284,26 @@
                 globalThem += receiveResult.classList;
             }
         }
+
         let output = JSON.stringify(appIdArray).replace(/"/g, '#');
         let tradeUrlFull = tradeUrl + "&them=" + globalThem + "&you=" + globalYou;
+        let invObject = inventoryCountParser(bots[index].items_count);
         let rowTemplate = `
             <div id="asfstmbot_${index}" class="badge_row">
               <div class="badge_row_inner">
                 <div class="badge_title_row guide_showcase_contributors">
                   <div class="badge_title_stats">
-                    <div class="btn_darkblue_white_innerfade btn_medium" id="copy${index}">
+                    <div class="btn_darkblue_white_innerfade btn_medium" id="send${index}">
                       <span>
-                        Copy Trade Data
+                        Send Trade Request
                       </span>
-                      <input id="input${index}" type="text" value="" hidden>
                     </div>
                     <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
                       <span>
                         Filter all
                       </span>
                     </div>
-                    <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener" >
+                    <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener">
                       <div class="btn_darkblue_white_innerfade btn_medium">
                         <span>
                           Offer a trade for all
@@ -308,7 +312,11 @@
                     </a>
                   </div>
                   <div class="badge_title">
-                    ${botname}${any}
+                    <div>
+                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${botname}</span></a>
+                      ${any}
+                      <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                    </div>
                   </div>
                 </div>
                 <div class="badge_title_rule"></div>
@@ -322,32 +330,126 @@
         let newChild = template.content.firstChild;
         mainContentDiv.appendChild(newChild);
         checkRow(newChild);
-        document.querySelector(`#copy${index}`).addEventListener("click", copy.bind(null, index), false);
+        document.querySelector(`#send${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
     }
 
-    function copy(index) {
-        let link = document.querySelector(`#full_trade_${index}`);
-        let data = link.href.split('?')[1].split('&');
-        let globalYou = data[4].split('=')[1];
-        let globalThem = data[3].split('=')[1];
-        let jsonThis = {
-            partner: {
-                steam3ID: getPartner(bots[index].steam_id),
-                steam64ID: bots[index].steam_id,
-                token: bots[index].trade_token
-            },
-            myClassIds: globalYou,
-            partnerClassIds: globalThem
+    function sendPostRequest(index) {
+        let htmlButton = document.querySelector(`#send${index}`);
+        htmlButton.children[0].innerText = "Sending Offer..."
+        let htmlElem = document.querySelector(`#full_trade_${index}`);
+        let link = htmlElem.href.split('?')[1].split('&');
+        let partnerClassIDs = link[3].split('=')[1];
+        let myClassIDs = link[4].split('=')[1];
+        let myAssetData = getPostData(-1, myClassIDs);
+        let partnerAssetData = getPostData(index, partnerClassIDs);
+        if (myAssetData.length != partnerAssetData.length) { // check for same number of items
+            htmlButton.children[0].innerText = "ERROR: Item Mismatch!";
         }
-        let jsonedObject = JSON.stringify(jsonThis);
-        jsonedObject = jsonedObject.replace(/"/g, "#");
+        let tradeOfferObject = {
+            newversion: true,
+            version: 1,
+            me: {
+                assets: myAssetData,
+                currency: [],
+                ready: true
+            },
+            them:{
+                assets: partnerAssetData,
+                currency: [],
+                ready: false
+            }
+        };
 
-        let copyText = document.querySelector(`#input${index}`);
-        copyText.hidden = false;
-		copyText.value = jsonedObject;
-        copyText.select();
-        document.execCommand("copy");
-        copyText.hidden = true;
+        let token = link[1].split('=')[1];
+        let steam3ID = link[0].split('=')[1];
+        let steam64ID = bots[index].steam_id;
+
+        let form = [
+            `sessionid=${sessionid}&`,
+            "serverid=1&",
+            `partner=${steam64ID}&`,
+            `tradeoffermessage=${encodeURIComponent(tradeMessage)}&`,
+            `json_tradeoffer=${encodeURIComponent(JSON.stringify(tradeOfferObject))}&`,
+            "captcha=&",
+            `trade_offer_create_params=${encodeURIComponent('{"')}trade_offer_access_token${encodeURIComponent('":"')}${token}${encodeURIComponent('"}')}`
+        ];
+
+        GM_xmlhttpRequest ({
+            method:     "POST",
+            url:        "https://steamcommunity.com/tradeoffer/new/send",
+            data:       form.join(""),
+            headers:    {
+                'Cookie': `sessionid=${sessionid}; steamLoginSecure=${steamLoginSecure};`,
+                'Referer': `https://steamcommunity.com/tradeoffer/new/?partner=${steam3ID}&token=${token}`,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            onload:     function (response) {
+                let status = response.status;
+                if (status === 200 && response.statusText === "OK") {
+                    htmlButton.children[0].innerText = "Sent!";
+                    return;
+                }
+                else if (status.toString()[0] === "4") {
+                    htmlButton.children[0].innerText = "CLIENT ERROR: Check console!";
+                }
+                else if (status.toString()[0] === "5") {
+                    htmlButton.children[0].innerText = "SERVER ERROR: Check console!";
+                }
+                console.log(response.status + " " + response.statusText);
+            },
+            onerror:    function(reponse) {
+                htmlButton.children[0].innerText = "REQUEST ERROR: Check console!";
+                console.log("error: ", reponse);
+            }
+        });
+    }
+
+    function getPostData(index, classIDsString) {
+        let assetObject;
+        if (index < 0) { // my inventory
+            assetObject = myAssets;
+        } else { // bot inventory
+            assetObject = bots[index].assets;
+        }
+        let parsedClassIDs = classIDsString.split(";");
+        let assetIDs = [];
+        for (let obj of assetObject) {
+            if (parsedClassIDs.find(id => id == obj.classid)) {
+                parsedClassIDs[parsedClassIDs.findIndex(id => id == obj.classid)] = -1
+                assetIDs.push({
+                    appid: obj.appid,
+                    contextid: obj.contextid,
+                    amount: 1,
+                    assetid: obj.assetid
+                });
+            }
+        }
+        return assetIDs;
+    }
+
+    function inventoryCountParser(number) {
+        let numToStr = number.toString();
+        let len = numToStr.length;
+        let retVal = {};
+        retVal.number = numToStr; // full number
+        retVal.color = '#7b7b7c'; // normal; < 50k
+        if (number > 75000) {
+            retVal.color = '#A34C25'; // danger; > 75k
+        } else if (number > 50000) {
+            retVal.color = '#B9A074'; // warning; > 50k
+        }
+        if (len == 4) { // 4 digits
+            retVal.number = `${numToStr[0]}K`;
+        } else if (len == 5 && numToStr[0] < 5) { // 5 digits, less than 50k
+            retVal.number = `${numToStr.substring(0, 2)}K`;
+        } else if (len == 5 && numToStr[0] >= 5) { // 5 digits, more than 50k
+            retVal.number = `+${Math.floor(number / 5000) * 5}K`
+        } else if (len == 6) { // 6 digits
+            retVal.number = `+${Math.floor(number / 50000) * 50}K`
+        } else if (len > 6) { // more than 7 digits
+            retVal.number = `+${Math.floor(number / 1000000)}M`
+        }
+        return retVal;
     }
 
     function fetchInventory(steamId, startAsset, callback) {
@@ -682,6 +784,7 @@
         fetchInventory(bots[index].steam_id, 0, function() {
             debugPrint(bots[index].steam_id);
             debugPrint(assets.length);
+            bots[index].assets = assets;
             compareCards(index, function() {
                 if (index < bots.length - 1) {
                     setTimeout((function(index) {
@@ -863,6 +966,7 @@
             debugPrint(deepClone(descriptions));
             debugPrint("our cards");
             debugPrint(deepClone(myBadges));
+            myAssets = assets
             populateExistingCards(myBadges, true);
             if (myBadges.length === 0) {
                 hideThrobber();
@@ -1075,15 +1179,15 @@
           <div id="asf_stm_filters" style="position: fixed; z-index: 1000; right: 5px; bottom: 45px; transition-duration: 500ms;
               transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
             <div style="white-space: nowrap;">Select:
-	          <a id="asf_stm_filter_all" class="commentthread_pagelinks">
-		        all
-	          </a>
-	          <a id="asf_stm_filter_none" class="commentthread_pagelinks">
-		        none
-	          </a>
-	          <a id="asf_stm_filter_invert" class="commentthread_pagelinks">
-		        invert
-	          </a>
+              <a id="asf_stm_filter_all" class="commentthread_pagelinks">
+                all
+              </a>
+              <a id="asf_stm_filter_none" class="commentthread_pagelinks">
+                none
+              </a>
+              <a id="asf_stm_filter_invert" class="commentthread_pagelinks">
+                invert
+              </a>
             </div>
             <hr />
             <div id="asf_stm_filters_body">
@@ -1201,5 +1305,13 @@
                 debugPrint(response);
             }
         });
+    }
+
+    if (sessionid === "" || steamLoginSecure === "") {
+        let cookiesString = document.cookie.split(';');
+        let cookiesParsed = {};
+        cookiesString.forEach(elem => {cookiesParsed[elem.split('=')[0].trim()] = elem.split('=')[1]});
+        sessionid = cookiesParsed.sessionid;
+        steamLoginSecure = cookiesParsed.steamLoginSecure;
     }
 })();
