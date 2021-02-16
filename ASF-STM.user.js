@@ -1,18 +1,18 @@
 // ==UserScript==
-// @name        ASF STM
+// @name        Updated ASF STM
 // @language    English
 // @namespace   https://greasyfork.org/users/2205
 // @description ASF bot list trade matcher
 // @license     Apache-2.0
 // @author      Ryzhehvost
 // @contributor iBreakEverything
-// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/raw/master/ASF-STM.user.js
-// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/raw/master/ASF-STM.user.js
+// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/userscript.user.js
+// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/userscript.user.js
 // @include     http*://steamcommunity.com/id/*/badges
 // @include     http*://steamcommunity.com/id/*/badges/
 // @include     http*://steamcommunity.com/profiles/*/badges
 // @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     2.0.3
+// @version     2.0.4
 // @icon        https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
 // @connect     asf.justarchi.net
 // @grant       GM.xmlHttpRequest
