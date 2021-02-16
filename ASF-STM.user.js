@@ -1179,15 +1179,15 @@
           <div id="asf_stm_filters" style="position: fixed; z-index: 1000; right: 5px; bottom: 45px; transition-duration: 500ms;
               transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
             <div style="white-space: nowrap;">Select:
-	          <a id="asf_stm_filter_all" class="commentthread_pagelinks">
-		        all
-	          </a>
-	          <a id="asf_stm_filter_none" class="commentthread_pagelinks">
-		        none
-	          </a>
-	          <a id="asf_stm_filter_invert" class="commentthread_pagelinks">
-		        invert
-	          </a>
+              <a id="asf_stm_filter_all" class="commentthread_pagelinks">
+                all
+              </a>
+              <a id="asf_stm_filter_none" class="commentthread_pagelinks">
+                none
+              </a>
+              <a id="asf_stm_filter_invert" class="commentthread_pagelinks">
+                invert
+              </a>
             </div>
             <hr />
             <div id="asf_stm_filters_body">
