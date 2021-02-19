@@ -1,27 +1,27 @@
 // ==UserScript==
-// @name        ASF STM
-// @language    English
-// @namespace   https://greasyfork.org/users/2205
-// @description ASF bot list trade matcher
-// @license     Apache-2.0
-// @author      Ryzhehvost
-// @contributor iBreakEverything
-// @updateURL   https://github.com/iBreakEverything/Updated-ASF-STM/raw/beta/ASF-STM.user.js
-// @downloadURL https://github.com/iBreakEverything/Updated-ASF-STM/raw/beta/ASF-STM.user.js
-// @include     http*://steamcommunity.com/id/*/badges
-// @include     http*://steamcommunity.com/id/*/badges/
-// @include     http*://steamcommunity.com/profiles/*/badges
-// @include     http*://steamcommunity.com/profiles/*/badges/
-// @version     2.0.2
-// @icon        https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
-// @connect     asf.justarchi.net
-// @grant       GM.xmlHttpRequest
-// @grant       GM_xmlhttpRequest
+// @name          Updated ASF STM
+// @language      English
+// @namespace     https://greasyfork.org/users/738914
+// @description   ASF bot list trade matcher
+// @license       Apache-2.0
+// @author        Ryzhehvost
+// @contributor   iBreakEverything
+// @updateURL     https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
+// @downloadURL   https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
+// @include       http*://steamcommunity.com/id/*/badges
+// @include       http*://steamcommunity.com/id/*/badges/
+// @include       http*://steamcommunity.com/profiles/*/badges
+// @include       http*://steamcommunity.com/profiles/*/badges/
+// @version       2.0.6
+// @icon          https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
+// @connect       asf.justarchi.net
+// @grant         GM.xmlHttpRequest
+// @grant         GM_xmlhttpRequest
 // ==/UserScript==
 
 (function() {
     "use strict";
-    const tradeMessage = `Trade was sent using ASF-STM script version ${GM_info.script.version}!`;
+    const tradeMessage = `Trade was sent using Updated-ASF-STM script version ${GM_info.script.version}!`;
     const limiter = 0;
     const errorLimiter = 1000;
     const debug = false;
@@ -191,7 +191,7 @@
         }
     }
 
-    function addMatchRow(index, botname) {
+    function addMatchRow(index, profile) {
         debugPrint("addMatchRow " + index);
         let itemsToSend = bots[index].itemsToSend;
         let itemsToReceive = bots[index].itemsToReceive;
@@ -202,7 +202,7 @@
         let any = "";
         let appIdArray = [];
         if (bots[index].match_everything == 1) {
-            any = `&nbsp;<sup><span class="avatar_block_status_in-game" style="font-size: 8px; cursor:help" title="This bots trades for any cards within same set">&nbsp;ANY&nbsp;</span></sup>`;
+            any = `&nbsp;<sup><span class="avatar_block_status_in-game" style="font-size: 8px; cursor:help;position: relative;top: -0.2em" title="This bots trades for any cards within same set">&nbsp;ANY&nbsp;</span></sup>`;
         }
         for (let i = 0; i < itemsToSend.length; i++) {
             let appId = itemsToSend[i].appId;
@@ -219,7 +219,7 @@
             //add filter
             let checkBox = document.getElementById("astm_" + appId);
             if (checkBox == null) {
-                let newFilter = `<span style="margin-right: 15px; white-space: nowrap; display: inline-block;"><input type="checkbox" id="astm_${appId}" checked="" />${gameName}</span>`;
+                let newFilter = `<span style="margin-right: 15px; white-space: nowrap; display: inline-block;"><input type="checkbox" id="astm_${appId}" checked="" /><label for="astm_${appId}">${gameName}</label></span>`;
                 let spanTemplate = document.createElement("template");
                 spanTemplate.innerHTML = newFilter.trim();
                 filterWidget.appendChild(spanTemplate.content.firstChild);
@@ -236,37 +236,38 @@
             let matchTemplate = `
                   <div class="asf_stm_appid_${appId}" style="display:${display}">
                     <div class="badge_row is_link goo_untradable_note showcase_slot">
-                      <div class="notLoggedInText">
-                        <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
-                        <div>
-                          <div title="View badge progress for this game">
-                            <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">${gameName}</a>
-                          </div>
+                      <div class="badge_content" style="display:grid;justify-content: center">
+                        <div title="View ${gameName} badge progress" style="justify-content: center;display: flex">
+                          <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">
+                            <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
+                          </a>
                         </div>
-                        <a href="${tradeUrlApp}" target="_blank" rel="noopener">
-                          <div class="btn_darkblue_white_innerfade btn_medium">
-                            <span>
-                              Offer a trade
-                            </span>
+                        <div style="justify-content: space-between;display: flex;">
+                          <a href="${tradeUrlApp}" target="_blank" rel="noopener">
+                            <div class="btn_darkblue_white_innerfade btn_medium">
+                              <span>
+                                Offer a trade
+                              </span>
+                            </div>
+                          </a>
+                          <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
+                            <span>Filter</span>
                           </div>
-                        </a>
-                        <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
-                          <span>Filter</span>
                         </div>
                       </div>
                       <div class="showcase_slot">
-                          <div class="showcase_slot profile_header">
-                              <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
-                              ${sendResult.htmlCards}
-                          </div>
-                          <span class="showcase_slot badge_info_title booster_creator_actions">
-                              <h1>&#10145;</h1>
-                          </span>
+                        <div class="showcase_slot profile_header">
+                          <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
+                          ${sendResult.htmlCards}
+                        </div>
+                        <span class="showcase_slot badge_info_title booster_creator_actions">
+                          <h1>&#10145;</h1>
+                        </span>
                       </div>
                       <div class="showcase_slot profile_header">
-                          <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
-                            ${botname}
-                          </div>
+                        <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
+                          ${profile.username}
+                        </div>
                         ${receiveResult.htmlCards}
                       </div>
                     </div>
@@ -312,8 +313,13 @@
                     </a>
                   </div>
                   <div class="badge_title">
-                    <div>
-                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${botname}</span></a>
+                    <div style="display:flex">
+                      <div class="playerAvatar ${profile.onlineState}" style="margin-right:5px;">
+                        <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener">
+                          <img src="${profile.avatar}">
+                        </a>
+                      </div>
+                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${profile.username}</span></a>
                       ${any}
                       <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
                     </div>
@@ -433,21 +439,13 @@
         let retVal = {};
         retVal.number = numToStr; // full number
         retVal.color = '#7b7b7c'; // normal; < 50k
-        if (number > 75000) {
-            retVal.color = '#A34C25'; // danger; > 75k
-        } else if (number > 50000) {
-            retVal.color = '#B9A074'; // warning; > 50k
+        if (number > 65000) {
+            retVal.color = '#A34C25'; // danger; > 65k
+        } else if (number > 30000) {
+            retVal.color = '#B9A074'; // warning; > 30k
         }
-        if (len == 4) { // 4 digits
-            retVal.number = `${numToStr[0]}K`;
-        } else if (len == 5 && numToStr[0] < 5) { // 5 digits, less than 50k
-            retVal.number = `${numToStr.substring(0, 2)}K`;
-        } else if (len == 5 && numToStr[0] >= 5) { // 5 digits, more than 50k
-            retVal.number = `+${Math.floor(number / 5000) * 5}K`
-        } else if (len == 6) { // 6 digits
-            retVal.number = `+${Math.floor(number / 50000) * 50}K`
-        } else if (len > 6) { // more than 7 digits
-            retVal.number = `+${Math.floor(number / 1000000)}M`
+        if (len > 3) { // 4 or more digits
+            retVal.number = `${numToStr.substring(0, len - 3)}K`;
         }
         return retVal;
     }
@@ -707,18 +705,33 @@
         let url = "https://steamcommunity.com/profiles/" + bots[index].steam_id + "?xml=1";
         let xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
-        xhr.responseType = "text"; //TODO: consider XML maybe?
-        //xhr.setRequestHeader("Range","bytes=0-200"); //fuck it, get the whole page
+        xhr.responseType = "text";
         xhr.onload = function() {
             let status = xhr.status;
-            let username = bots[index].steam_id;
+            let profile = {};
+            profile.username = bots[index].steam_id;
+            profile.avatar = GM.info.script.icon;
+            profile.onlineState = "offline";
             debugPrint("getting username");
             if (status === 200) {
                 errors = 0;
                 let re = /<steamID><!\[CDATA\[(.+)\]\]><\/steamID>/g;
-                username = re.exec(xhr.response)[1];
-                debugPrint(username);
-                addMatchRow(index, username);
+                let result = re.exec(xhr.response);
+                if (result) {
+                    profile.username = result[1];
+                }
+                re = /<avatarIcon><!\[CDATA\[(.+)\]\]><\/avatarIcon>/g;
+                result = re.exec(xhr.response);
+                if (result) {
+                    profile.avatar = result[1];
+                }
+                re = /<onlineState>(.+)<\/onlineState>/g;
+                result = re.exec(xhr.response);
+                if (result) {
+                    profile.onlineState = result[1];
+                }
+                debugPrint(deepClone(profile));
+                addMatchRow(index, profile);
                 callback();
             } else {
                 if (stop) {
@@ -1153,17 +1166,17 @@
         mainContentDiv.innerHTML = `
           <div class="profile_badges_header">
             <div id="throbber">
-                <div class="LoadingWrapper">
-                    <div class="LoadingThrobber">
-                        <div class="Bar Bar1"></div>
-                        <div class="Bar Bar2"></div>
-                        <div class="Bar Bar3"></div>
-                    </div>
+              <div class="LoadingWrapper">
+                <div class="LoadingThrobber">
+                  <div class="Bar Bar1"></div>
+                  <div class="Bar Bar2"></div>
+                  <div class="Bar Bar3"></div>
                 </div>
+              </div>
             </div>
             <div>
             <div id="asf_stm_messagebox" class="profile_badges_header">
-               <div id="asf_stm_message" class="profile_badges_header_title" style="text-align: center;">Initialization</div>
+              <div id="asf_stm_message" class="profile_badges_header_title" style="text-align: center;">Initialization</div>
             </div>
             </div>
             <div style="width: 100%;">
@@ -1180,13 +1193,13 @@
               transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
             <div style="white-space: nowrap;">Select:
               <a id="asf_stm_filter_all" class="commentthread_pagelinks">
-                all
+                All
               </a>
               <a id="asf_stm_filter_none" class="commentthread_pagelinks">
-                none
+                None
               </a>
               <a id="asf_stm_filter_invert" class="commentthread_pagelinks">
-                invert
+                Invert
               </a>
             </div>
             <hr />
@@ -1195,9 +1208,9 @@
             </div>
           </div>
           <div style="position: fixed;z-index: 1000;right: 5px;bottom: 5px;" id="asf_stm_filters_button_div">
-              <a id="asf_stm_filters_button" class="btnv6_blue_hoverfade btn_medium">
-                  <span>Filters</span>
-              </a>
+            <a id="asf_stm_filters_button" class="btnv6_blue_hoverfade btn_medium">
+              <span>Filters</span>
+            </a>
           </div>
         `;
         document.getElementById("asf_stm_stop").addEventListener("click", stopButtonEvent, false);
