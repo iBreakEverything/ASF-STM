@@ -28,6 +28,7 @@
     const maxErrors = 5;
     const filterBackgroundColor = '#171A21E6';
     let errors = 0;
+    let blacklist = [];
     let bots;
     let assets = [];
     let myAssets = [];
@@ -794,6 +795,10 @@
         debugPrint(index);
         updateMessage("Fetching bot " + (index + 1).toString() + " of " + bots.length.toString());
         updateProgress(index);
+        if (blacklist.find(id => id == bots[index].steam_id)) {
+            debugPrint("Bot blacklisted. Skipping...");
+            return checkUser(index + 1);
+        }
         fetchInventory(bots[index].steam_id, 0, function() {
             debugPrint(bots[index].steam_id);
             debugPrint(assets.length);
@@ -1222,6 +1227,7 @@
         maxPages = 1;
         stop = false;
         myBadges.length = 0;
+        //TODO add db call here
         getBadges(1);
     }
 
