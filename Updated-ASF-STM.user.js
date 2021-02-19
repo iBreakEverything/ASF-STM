@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Updated ASF STM
 // @language    English
-// @namespace   https://greasyfork.org/users/2205
+// @namespace   https://greasyfork.org/users/738914
 // @description ASF bot list trade matcher
 // @license     Apache-2.0
 // @author      Ryzhehvost
