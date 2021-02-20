@@ -1,22 +1,26 @@
 // ==UserScript==
-// @name          Updated ASF STM
-// @language      English
-// @namespace     https://greasyfork.org/users/738914
-// @description   ASF bot list trade matcher
-// @license       Apache-2.0
-// @author        Ryzhehvost
-// @contributor   iBreakEverything
-// @updateURL     https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
-// @downloadURL   https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
-// @include       http*://steamcommunity.com/id/*/badges
-// @include       http*://steamcommunity.com/id/*/badges/
-// @include       http*://steamcommunity.com/profiles/*/badges
-// @include       http*://steamcommunity.com/profiles/*/badges/
-// @version       2.0.6
-// @icon          https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
-// @connect       asf.justarchi.net
-// @grant         GM.xmlHttpRequest
-// @grant         GM_xmlhttpRequest
+// @name         Updated ASF STM
+// @language     English
+// @namespace    https://greasyfork.org/users/738914
+// @description  ASF bot list trade matcher
+// @license      Apache-2.0
+// @author       Ryzhehvost
+// @contributor  iBreakEverything
+// @updateURL    https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
+// @downloadURL  https://github.com/iBreakEverything/Updated-ASF-STM/releases/latest/download/Updated-ASF-STM.user.js
+// @include      http*://steamcommunity.com/id/*/badges
+// @include      http*://steamcommunity.com/id/*/badges/
+// @include      http*://steamcommunity.com/profiles/*/badges
+// @include      http*://steamcommunity.com/profiles/*/badges/
+// @version      2.0.6
+// @icon         https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
+// @connect      asf.justarchi.net
+// @grant        GM.xmlHttpRequest
+// @grant        GM_xmlhttpRequest
+// @grant        GM.setValue
+// @grant        GM_setValue
+// @grant        GM.getValue
+// @grant        GM_getValue
 // ==/UserScript==
 
 (function() {
