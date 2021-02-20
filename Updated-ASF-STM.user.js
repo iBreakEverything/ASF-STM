@@ -21,12 +21,13 @@
 
 (function() {
     "use strict";
-    const tradeMessage = `Trade was sent using Updated-ASF-STM script version ${GM_info.script.version}!`;
-    const limiter = 0;
-    const errorLimiter = 1000;
-    const debug = false;
-    const maxErrors = 5;
-    const filterBackgroundColor = '#171A21E6';
+    const TRADE_MESSAGE = `Trade was sent using Updated-ASF-STM script version ${GM_info.script.version}!`;
+    const LIMITER = 0;
+    const ERROR_LIMITER = 1000;
+    const DEBUG = false;
+    const MAX_ERRORS = 5;
+    const FILTER_BACKGROUND_COLOR = '#171A21E6';
+    const BLACKLIST_NAME = 'blacklist';
     let errors = 0;
     let blacklist = [];
     let bots;
@@ -41,19 +42,19 @@
     let steamLoginSecure = "";
 
     function debugTime(name) {
-        if (debug) {
+        if (DEBUG) {
             console.time(name);
         }
     }
 
     function debugTimeEnd(name) {
-        if (debug) {
+        if (DEBUG) {
             console.timeEnd(name);
         }
     }
 
     function debugPrint(msg) {
-        if (debug) {
+        if (DEBUG) {
             console.log(msg);
         }
     }
@@ -75,16 +76,14 @@
     }
 
     function enableButton() {
-        let buttonDiv = document.getElementById("asf_stm_button_div");
-        buttonDiv.setAttribute("class", "profile_small_header_additional");
         let button = document.getElementById("asf_stm_button");
+        button.setAttribute("class", "btnv6_blue_hoverfade btn_medium");
         button.addEventListener("click", buttonPressedEvent, false);
     }
 
     function disableButton() {
-        let buttonDiv = document.getElementById("asf_stm_button_div");
-        buttonDiv.setAttribute("class", "profile_small_header_additional btn_disabled");
         let button = document.getElementById("asf_stm_button");
+        button.setAttribute("class", "btnv6_blue_hoverfade btn_medium btn_disabled");
         button.removeEventListener("click", buttonPressedEvent, false);
     }
 
@@ -295,7 +294,7 @@
               <div class="badge_row_inner">
                 <div class="badge_title_row guide_showcase_contributors">
                   <div class="badge_title_stats">
-                    <div class="btn_darkblue_white_innerfade btn_medium" id="send${index}">
+                    <div class="btn_darkblue_white_innerfade btn_medium" id="send_${index}">
                       <span>
                         Send Trade Request
                       </span>
@@ -312,6 +311,11 @@
                         </span>
                       </div>
                     </a>
+                    <div class="btn_darkred_white_innerfade btn_medium_thin" id="blacklist_${index}">
+                      <span>
+                        🚫
+                      </span>
+                    </div>
                   </div>
                   <div class="badge_title">
                     <div style="display:flex">
@@ -337,11 +341,45 @@
         let newChild = template.content.firstChild;
         mainContentDiv.appendChild(newChild);
         checkRow(newChild);
-        document.querySelector(`#send${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
+        document.querySelector(`#send_${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
+        document.querySelector(`#blacklist_${index}`).addEventListener("click", confirmAddToBlacklist.bind(null, index, profile.username), false);
+    }
+
+    function confirmAddToBlacklist(index, username) {
+        let fnReady = function() {
+            addToBlacklist(bots[index].steam_id);
+        };
+        let strTitle = 'Warning';
+        let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
+        let strButton = 'Add to blacklist';
+        ShowConfirmDialog( strTitle, elWarning, strButton ).done( fnReady );
+    }
+
+    function addToBlacklist(steamID) {
+        if (! blacklist.find(id => id == steamID)) {
+            blacklist.push(steamID);
+            updateBlacklist();
+        }
+    }
+
+    async function getBlacklist() {
+        updateMessage("Getting blacklist...");
+        let promiseBlacklist = [];
+        try {
+            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '[]');
+        } catch(e) {
+            console.log('Failed to get blacklist: ' + e);
+        }
+        blacklist = JSON.parse(promiseBlacklist);
+    }
+
+    function updateBlacklist() {
+        let blacklistString = JSON.stringify(blacklist);
+        GM.setValue(BLACKLIST_NAME, blacklistString);
     }
 
     function sendPostRequest(index) {
-        let htmlButton = document.querySelector(`#send${index}`);
+        let htmlButton = document.querySelector(`#send_${index}`);
         htmlButton.children[0].innerText = "Sending Offer..."
         let htmlElem = document.querySelector(`#full_trade_${index}`);
         let link = htmlElem.href.split('?')[1].split('&');
@@ -375,7 +413,7 @@
             `sessionid=${sessionid}&`,
             "serverid=1&",
             `partner=${steam64ID}&`,
-            `tradeoffermessage=${encodeURIComponent(tradeMessage)}&`,
+            `tradeoffermessage=${encodeURIComponent(TRADE_MESSAGE)}&`,
             `json_tradeoffer=${encodeURIComponent(JSON.stringify(tradeOfferObject))}&`,
             "captcha=&",
             `trade_offer_create_params=${encodeURIComponent('{"')}trade_offer_access_token${encodeURIComponent('":"')}${token}${encodeURIComponent('"}')}`
@@ -497,12 +535,12 @@
             if (status == 403) {
                 assets.length = 0; //switch to next bot
                 callback();
-            } else if ((status < 400 || status >= 500 || status == 408) && (errors <= maxErrors)) {
+            } else if ((status < 400 || status >= 500 || status == 408) && (errors <= MAX_ERRORS)) {
                 setTimeout((function(steamId, startAsset, callback) {
                     return function() {
                         fetchInventory(steamId, startAsset, callback);
                     };
-                })(steamId, lastAsset, callback), limiter+errorLimiter*errors);
+                })(steamId, lastAsset, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 updateMessage("Error getting inventory, ERROR " + status);
                 hideThrobber();
@@ -522,12 +560,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(steamId, startAsset, callback) {
                     return function() {
                         fetchInventory(steamId, startAsset, callback);
                     };
-                })(steamId, startAsset, callback), limiter+errorLimiter*errors);
+                })(steamId, startAsset, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error getting inventory");
                 updateMessage("Error getting inventory");
@@ -744,12 +782,12 @@
                     return;
                 }
                 errors++;
-                if (errors <= maxErrors) {
+                if (errors <= MAX_ERRORS) {
                     setTimeout((function(index, callback) {
                         return function() {
                             getUsername(index, callback);
                         };
-                    })(index, callback), limiter+errorLimiter*errors);
+                    })(index, callback), LIMITER+ERROR_LIMITER*errors);
                 } else {
                     debugPrint("error HTTP Status=" + status);
                     updateMessage("Error getting username data, ERROR=" + status);
@@ -771,12 +809,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(index, callback) {
                     return function() {
                         getUsername(index, callback);
                     };
-                })(index, callback), limiter+errorLimiter*errors);
+                })(index, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error");
                 updateMessage("Error getting username data");
@@ -788,7 +826,6 @@
             }
         };
         xhr.send();
-
     }
 
     function checkUser(index) {
@@ -809,7 +846,7 @@
                         return function() {
                             checkUser(index);
                         };
-                    })(index + 1), limiter);
+                    })(index + 1), LIMITER);
                 } else {
                     debugPrint("finished");
                     debugPrint(new Date(Date.now()));
@@ -924,12 +961,12 @@
                     } else {
                         errors++;
                     }
-                    if ((status < 400 || status >= 500) && (errors <= maxErrors)) {
+                    if ((status < 400 || status >= 500) && (errors <= MAX_ERRORS)) {
                         setTimeout((function(index) {
                             return function() {
                                 populateMaxCards(index);
                             };
-                        })(index), limiter+errorLimiter*errors);
+                        })(index), LIMITER+ERROR_LIMITER*errors);
                     } else {
                         updateMessage("Error getting badge data, ERROR " + status);
                         hideThrobber();
@@ -950,12 +987,12 @@
                         return;
                     }
                     errors++;
-                    if (errors <= maxErrors) {
+                    if (errors <= MAX_ERRORS) {
                         setTimeout((function(index) {
                             return function() {
                                 populateMaxCards(index);
                             };
-                        })(index), limiter+errorLimiter*errors);
+                        })(index), LIMITER+ERROR_LIMITER*errors);
                         return;
                     } else {
                         debugPrint("error");
@@ -1055,13 +1092,13 @@
             } else {
                 errors++;
             }
-            if ((status < 400 || status >= 500) && (errors <= maxErrors)) {
+            if ((status < 400 || status >= 500) && (errors <= MAX_ERRORS)) {
                 if (page <= maxPages) {
                     setTimeout((function(page) {
                         return function() {
                             getBadges(page);
                         };
-                    })(page), limiter+errorLimiter*errors);
+                    })(page), LIMITER+ERROR_LIMITER*errors);
                 } else {
                     debugPrint("all badge pages processed");
                     if (myBadges.length === 0) {
@@ -1094,12 +1131,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(page) {
                     return function() {
                         getBadges(page);
                     };
-                })(page), limiter+errorLimiter*errors);
+                })(page), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error getting badge page");
                 updateMessage("Error getting badge page");
@@ -1195,7 +1232,7 @@
             </div>
           </div>
           <div id="asf_stm_filters" style="position: fixed; z-index: 1000; right: 5px; bottom: 45px; transition-duration: 500ms;
-              transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
+              transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${FILTER_BACKGROUND_COLOR} ;color: #67c1f5;">
             <div style="white-space: nowrap;">Select:
               <a id="asf_stm_filter_all" class="commentthread_pagelinks">
                 All
@@ -1227,7 +1264,7 @@
         maxPages = 1;
         stop = false;
         myBadges.length = 0;
-        //TODO add db call here
+        getBlacklist();
         getBadges(1);
     }
 
@@ -1296,18 +1333,17 @@
                     return result;
                 });
                 debugPrint("found total " + bots.length + " bots");
-                let buttonDiv = document.createElement("div");
-                buttonDiv.setAttribute("class", "profile_small_header_additional");
-                buttonDiv.setAttribute("style", "margin-top: 40px;");
-                buttonDiv.setAttribute("id", "asf_stm_button_div");
-                let button = document.createElement("a");
-                button.setAttribute("class", "btnv6_blue_hoverfade btn_medium");
-                button.setAttribute("id", "asf_stm_button");
-                button.appendChild(document.createElement("span"));
-                button.firstChild.appendChild(document.createTextNode("Scan ASF STM"));
-                buttonDiv.appendChild(button);
                 let anchor = document.getElementsByClassName("profile_small_header_texture")[0];
-                anchor.appendChild(buttonDiv);
+                anchor.innerHTML += `
+                <div class="profile_small_header_additional" style="margin-top: 40px;">
+                  <div class="btnv6_blue_hoverfade btn_medium" id="asf_stm_button">
+                    <span>Scan ASF STM</span>
+                  </div>
+                  <div class="btnv6_blue_hoverfade btn_medium" id="blacklist" style="background:#c31b1b;margin-left:5px">
+                    <span style="background:#375064">View Blacklist</span>
+                  </div>
+                </div>
+                `;
                 enableButton();
                 addJS_Node(null, null, filterAppId);
             },
