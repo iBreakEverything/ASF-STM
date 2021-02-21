@@ -81,13 +81,13 @@
 
     function enableButton() {
         let button = document.getElementById("asf_stm_button");
-        button.setAttribute("class", "btnv6_blue_hoverfade btn_medium");
+        button.removeClassName('btn_disabled')
         button.addEventListener("click", buttonPressedEvent, false);
     }
 
     function disableButton() {
         let button = document.getElementById("asf_stm_button");
-        button.setAttribute("class", "btnv6_blue_hoverfade btn_medium btn_disabled");
+        button.addClassName('btn_disabled')
         button.removeEventListener("click", buttonPressedEvent, false);
     }
 
@@ -360,7 +360,7 @@
     }
 
     function addToBlacklist(steamID, username, avatar) {
-        if (! blacklist.find(entry => entry.steamID == steamID)) {
+        if ( (! blacklist.length) || (! blacklist.find(entry => entry.steamID == steamID)) ) {
             blacklist.push({"steamID":steamID, "username":username, "avatar":avatar});
             updateBlacklist();
         }
@@ -369,7 +369,7 @@
     async function getBlacklist() {
         let promiseBlacklist = [];
         try {
-            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '{}');
+            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '[]');
         } catch(e) {
             console.log('Failed to get blacklist: ' + e);
         }
@@ -383,31 +383,35 @@
 
         let blacklistedAccounts = '';
 
-        for (let account of blacklist) {
-            let accountHTML = `
-              <div class="friendBlock persona offline">
-                <a href="https://steamcommunity.com/profiles/${account.steamID}/" target="_blank" rel="noopener">
-                  <div class="playerAvatar offline">
-                    <img src="${account.avatar}">
-                  </div>
-                </a>
-                <div class="friendBlockContent">
-                  ${account.username}<br>
-                  <span class="friendSmallText">
-                    ${account.steamID}
-                  </span>
-              <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID /*TODO*/}" title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
-                    <span>❌</span>
-                  </div>
-                </div>
-              </div>
-            `;
-            blacklistedAccounts += accountHTML;
-        }
-
         let colsView = '';
         if (blacklist.length > 10) {
             colsView = 'cols';
+        }
+
+        if (blacklist.length) {
+            for (let account of blacklist) {
+                let accountHTML = `
+                  <div class="friendBlock persona offline">
+                    <a href="https://steamcommunity.com/profiles/${account.steamID}/" target="_blank" rel="noopener">
+                      <div class="playerAvatar offline">
+                        <img src="${account.avatar}">
+                      </div>
+                    </a>
+                    <div class="friendBlockContent">
+                      ${account.username}<br>
+                      <span class="friendSmallText">
+                        ${account.steamID}
+                      </span>
+                  <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID /*TODO*/}" title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
+                        <span>❌</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                blacklistedAccounts += accountHTML;
+            }
+        } else {
+            blacklistedAccounts = '<span>Blacklist is empty.</span>'
         }
 
         let blacklistElement = `
@@ -885,9 +889,11 @@
         debugPrint(index);
         updateMessage("Fetching bot " + (index + 1).toString() + " of " + bots.length.toString());
         updateProgress(index);
-        if (blacklist.find(id => id == bots[index].steam_id)) {
-            debugPrint("Bot blacklisted. Skipping...");
-            return checkUser(index + 1);
+        if (blacklist.length) {
+            if (blacklist.find(enrty => enrty.steamID == bots[index].steam_id)) {
+                debugPrint("Bot blacklisted. Skipping...");
+                return checkUser(index + 1);
+            }
         }
         fetchInventory(bots[index].steam_id, 0, function() {
             debugPrint(bots[index].steam_id);
@@ -1393,11 +1399,12 @@
                     <div class="btnv6_blue_hoverfade btn_medium" id="asf_stm_button">
                       <span>Scan ASF STM</span>
                     </div>
-                    <div class="btnv6_blue_hoverfade btn_medium" id="blacklist" style="background:#c31b1b;margin-left:5px">
+                    <div class="btnv6_blue_hoverfade btn_medium" id="view_blacklist" style="background:#c31b1b;margin-left:5px">
                       <span style="background:#375064">View Blacklist</span>
                     </div>
                   </div>
                 `;
+                document.querySelector(`#view_blacklist`).addEventListener("click", showBlacklist.bind(null), false);
                 enableButton();
                 addJS_Node(null, null, filterAppId);
             },
