@@ -352,6 +352,7 @@
     function confirmAddToBlacklist(index, username, avatar) {
         let fnReady = function() {
             addToBlacklist(bots[index].steam_id, username, avatar);
+            document.querySelector(`#asfstmbot_${index}`).remove()
         };
         let strTitle = 'Warning';
         let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
