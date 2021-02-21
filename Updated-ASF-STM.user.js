@@ -238,44 +238,44 @@
             let tradeUrlApp = tradeUrl + "&them=" + receiveResult.classList + "&you=" + sendResult.classList;
 
             let matchTemplate = `
-                  <div class="asf_stm_appid_${appId}" style="display:${display}">
-                    <div class="badge_row is_link goo_untradable_note showcase_slot">
-                      <div class="badge_content" style="display:grid;justify-content: center">
-                        <div title="View ${gameName} badge progress" style="justify-content: center;display: flex">
-                          <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">
-                            <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
-                          </a>
+              <div class="asf_stm_appid_${appId}" style="display:${display}">
+                <div class="badge_row is_link goo_untradable_note showcase_slot">
+                  <div class="badge_content" style="display:grid;justify-content: center">
+                    <div title="View ${gameName} badge progress" style="justify-content: center;display: flex">
+                      <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">
+                        <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
+                      </a>
+                    </div>
+                    <div style="justify-content: space-between;display: flex;">
+                      <a href="${tradeUrlApp}" target="_blank" rel="noopener">
+                        <div class="btn_darkblue_white_innerfade btn_medium">
+                          <span>
+                            Offer a trade
+                          </span>
                         </div>
-                        <div style="justify-content: space-between;display: flex;">
-                          <a href="${tradeUrlApp}" target="_blank" rel="noopener">
-                            <div class="btn_darkblue_white_innerfade btn_medium">
-                              <span>
-                                Offer a trade
-                              </span>
-                            </div>
-                          </a>
-                          <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
-                            <span>Filter</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="showcase_slot">
-                        <div class="showcase_slot profile_header">
-                          <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
-                          ${sendResult.htmlCards}
-                        </div>
-                        <span class="showcase_slot badge_info_title booster_creator_actions">
-                          <h1>&#10145;</h1>
-                        </span>
-                      </div>
-                      <div class="showcase_slot profile_header">
-                        <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
-                          ${profile.username}
-                        </div>
-                        ${receiveResult.htmlCards}
+                      </a>
+                      <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
+                        <span>Filter</span>
                       </div>
                     </div>
                   </div>
+                  <div class="showcase_slot">
+                    <div class="showcase_slot profile_header">
+                      <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
+                      ${sendResult.htmlCards}
+                    </div>
+                    <span class="showcase_slot badge_info_title booster_creator_actions">
+                      <h1>&#10145;</h1>
+                    </span>
+                  </div>
+                  <div class="showcase_slot profile_header">
+                    <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
+                      ${profile.username}
+                    </div>
+                    ${receiveResult.htmlCards}
+                  </div>
+                </div>
+              </div>
             `;
             if (checkBox == null || checkBox.checked) {
                 matches += matchTemplate;
@@ -294,50 +294,50 @@
         let tradeUrlFull = tradeUrl + "&them=" + globalThem + "&you=" + globalYou;
         let invObject = inventoryCountParser(bots[index].items_count);
         let rowTemplate = `
-            <div id="asfstmbot_${index}" class="badge_row">
-              <div class="badge_row_inner">
-                <div class="badge_title_row guide_showcase_contributors">
-                  <div class="badge_title_stats">
-                    <div class="btn_darkblue_white_innerfade btn_medium" id="send_${index}">
-                      <span>
-                        Send Trade Request
-                      </span>
-                    </div>
-                    <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
-                      <span>
-                        Filter all
-                      </span>
-                    </div>
-                    <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener">
-                      <div class="btn_darkblue_white_innerfade btn_medium">
-                        <span>
-                          Offer a trade for all
-                        </span>
-                      </div>
-                    </a>
-                    <div class="btn_darkred_white_innerfade btn_medium_thin" id="blacklist_${index}">
-                      <span>
-                        🚫
-                      </span>
-                    </div>
+          <div id="asfstmbot_${index}" class="badge_row">
+            <div class="badge_row_inner">
+              <div class="badge_title_row guide_showcase_contributors">
+                <div class="badge_title_stats">
+                  <div class="btn_darkblue_white_innerfade btn_medium" id="send_${index}">
+                    <span>
+                      Send Trade Request
+                    </span>
                   </div>
-                  <div class="badge_title">
-                    <div style="display:flex">
-                      <div class="playerAvatar ${profile.onlineState}" style="margin-right:5px;">
-                        <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener">
-                          <img src="${profile.avatar}">
-                        </a>
-                      </div>
-                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${profile.username}</span></a>
-                      ${any}
-                      <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                  <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
+                    <span>
+                      Filter all
+                    </span>
+                  </div>
+                  <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener">
+                    <div class="btn_darkblue_white_innerfade btn_medium">
+                      <span>
+                        Offer a trade for all
+                      </span>
                     </div>
+                  </a>
+                  <div class="btn_darkred_white_innerfade btn_medium_thin" id="blacklist_${index}">
+                    <span>
+                      🚫
+                    </span>
                   </div>
                 </div>
-                <div class="badge_title_rule"></div>
-                ${matches}
+                <div class="badge_title">
+                  <div style="display:flex">
+                    <div class="playerAvatar ${profile.onlineState}" style="margin-right:5px;">
+                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener">
+                        <img src="${profile.avatar}">
+                      </a>
+                    </div>
+                    <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${profile.username}</span></a>
+                    ${any}
+                    <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                  </div>
+                </div>
               </div>
+              <div class="badge_title_rule"></div>
+              ${matches}
             </div>
+          </div>
         `;
         let template = document.createElement("template");
         template.innerHTML = rowTemplate.trim();
@@ -346,12 +346,12 @@
         mainContentDiv.appendChild(newChild);
         checkRow(newChild);
         document.querySelector(`#send_${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
-        document.querySelector(`#blacklist_${index}`).addEventListener("click", confirmAddToBlacklist.bind(null, index, profile.username), false);
+        document.querySelector(`#blacklist_${index}`).addEventListener("click", confirmAddToBlacklist.bind(null, index, profile.username, profile.avatar), false);
     }
 
-    function confirmAddToBlacklist(index, username) {
+    function confirmAddToBlacklist(index, username, avatar) {
         let fnReady = function() {
-            addToBlacklist(bots[index].steam_id);
+            addToBlacklist(bots[index].steam_id, username, avatar);
         };
         let strTitle = 'Warning';
         let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
@@ -359,22 +359,71 @@
         window.ShowConfirmDialog( strTitle, elWarning, strButton ).done( fnReady );
     }
 
-    function addToBlacklist(steamID) {
-        if (! blacklist.find(id => id == steamID)) {
-            blacklist.push(steamID);
+    function addToBlacklist(steamID, username, avatar) {
+        if (! blacklist.find(entry => entry.steamID == steamID)) {
+            blacklist.push({"steamID":steamID, "username":username, "avatar":avatar});
             updateBlacklist();
         }
     }
 
     async function getBlacklist() {
-        updateMessage("Getting blacklist...");
         let promiseBlacklist = [];
         try {
-            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '[]');
+            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '{}');
         } catch(e) {
             console.log('Failed to get blacklist: ' + e);
         }
         blacklist = JSON.parse(promiseBlacklist);
+    }
+
+    function showBlacklist() {
+        let modalLoadingHTML = '<div class="group_invite_throbber"><img src="https://community.akamai.steamstatic.com/public/images/login/throbber.gif"></div>';
+        let blacklistModal = ShowAlertDialog('Blacklist', modalLoadingHTML, 'Cancel');
+        let buttons = blacklistModal.GetContent().find('.newmodal_buttons').detach();
+
+        let blacklistedAccounts = '';
+
+        for (let account of blacklist) {
+            let accountHTML = `
+              <div class="friendBlock persona offline">
+                <a href="https://steamcommunity.com/profiles/${account.steamID}/" target="_blank" rel="noopener">
+                  <div class="playerAvatar offline">
+                    <img src="${account.avatar}">
+                  </div>
+                </a>
+                <div class="friendBlockContent">
+                  ${account.username}<br>
+                  <span class="friendSmallText">
+                    ${account.steamID}
+                  </span>
+              <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID /*TODO*/}" title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
+                    <span>❌</span>
+                  </div>
+                </div>
+              </div>
+            `;
+            blacklistedAccounts += accountHTML;
+        }
+
+        let colsView = '';
+        if (blacklist.length > 10) {
+            colsView = 'cols';
+        }
+
+        let blacklistElement = `
+          <div class="player_list_ctn">
+            <div class="player_list_results responsive_friendblocks ${colsView}">
+              ${blacklistedAccounts}
+              <div style="clear: left;"></div>
+            </div>
+          </div>
+        `;
+
+        let blacklistContent = blacklistModal.GetContent().find('.newmodal_content');
+        blacklistContent.html(''); // erase the throbber
+        blacklistContent.append(blacklistElement);
+        blacklistContent.append(buttons);
+        blacklistModal.AdjustSizing();
     }
 
     function updateBlacklist() {
@@ -1268,6 +1317,7 @@
         maxPages = 1;
         stop = false;
         myBadges.length = 0;
+        updateMessage("Getting blacklist...");
         getBlacklist();
         getBadges(1);
     }
@@ -1339,14 +1389,14 @@
                 debugPrint("found total " + bots.length + " bots");
                 let anchor = document.getElementsByClassName("profile_small_header_texture")[0];
                 anchor.innerHTML += `
-                <div class="profile_small_header_additional" style="margin-top: 40px;">
-                  <div class="btnv6_blue_hoverfade btn_medium" id="asf_stm_button">
-                    <span>Scan ASF STM</span>
+                  <div class="profile_small_header_additional" style="margin-top: 40px;">
+                    <div class="btnv6_blue_hoverfade btn_medium" id="asf_stm_button">
+                      <span>Scan ASF STM</span>
+                    </div>
+                    <div class="btnv6_blue_hoverfade btn_medium" id="blacklist" style="background:#c31b1b;margin-left:5px">
+                      <span style="background:#375064">View Blacklist</span>
+                    </div>
                   </div>
-                  <div class="btnv6_blue_hoverfade btn_medium" id="blacklist" style="background:#c31b1b;margin-left:5px">
-                    <span style="background:#375064">View Blacklist</span>
-                  </div>
-                </div>
                 `;
                 enableButton();
                 addJS_Node(null, null, filterAppId);
