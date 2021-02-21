@@ -376,10 +376,12 @@
         blacklist = JSON.parse(promiseBlacklist);
     }
 
-    function showBlacklist() {
+    async function showBlacklist() {
         let modalLoadingHTML = '<div class="group_invite_throbber"><img src="https://community.akamai.steamstatic.com/public/images/login/throbber.gif"></div>';
         let blacklistModal = unsafeWindow.ShowAlertDialog('Blacklist', modalLoadingHTML, 'Cancel');
         let buttons = blacklistModal.GetContent().find('.newmodal_buttons').detach();
+
+        await getBlacklist();
 
         let blacklistedAccounts = '';
 
@@ -391,7 +393,7 @@
         if (blacklist.length) {
             for (let account of blacklist) {
                 let accountHTML = `
-                  <div class="friendBlock persona offline">
+                  <div class="friendBlock persona offline" id="blacklist_${account.steamID}">
                     <a href="https://steamcommunity.com/profiles/${account.steamID}/" target="_blank" rel="noopener">
                       <div class="playerAvatar offline">
                         <img src="${account.avatar}">
@@ -402,7 +404,7 @@
                       <span class="friendSmallText">
                         ${account.steamID}
                       </span>
-                  <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID /*TODO*/}" title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
+                      <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID}" steamid= title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
                         <span>❌</span>
                       </div>
                     </div>
@@ -428,6 +430,24 @@
         blacklistContent.append(blacklistElement);
         blacklistContent.append(buttons);
         blacklistModal.AdjustSizing();
+
+        if (blacklist.length) {
+            for (let account of blacklist) { // there must be a better way, maybe
+                document.querySelector(`#remove_blacklist_${account.steamID}`).addEventListener("click", removeFromBlacklist.bind(null, account.steamID), false);
+            }
+        }
+    }
+
+    function removeFromBlacklist(steamID) {
+        let blacklistElement = document.querySelector(`#blacklist_${steamID}`);
+        if (blacklistElement) {
+            blacklistElement.remove();
+        }
+        let removeIndex = blacklist.findIndex(entry => entry.steamID == steamID);
+        if (removeIndex >= 0) {
+            blacklist.splice(removeIndex, 1);
+            updateBlacklist();
+        }
     }
 
     function updateBlacklist() {
