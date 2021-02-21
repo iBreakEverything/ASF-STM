@@ -223,7 +223,7 @@
             //add filter
             let checkBox = document.getElementById("astm_" + appId);
             if (checkBox == null) {
-                let newFilter = `<span style="margin-right: 15px; white-space: nowrap; display: inline-block;"><input type="checkbox" id="astm_${appId}" checked="" /><label for="astm_${appId}">${gameName}</label></span>`;
+                let newFilter = `<span style="display:inline;width:30%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:1.6%"><input type="checkbox" id="astm_${appId}" checked="" /><label for="astm_${appId}">${gameName}</label></span>`;
                 let spanTemplate = document.createElement("template");
                 spanTemplate.innerHTML = newFilter.trim();
                 filterWidget.appendChild(spanTemplate.content.firstChild);
@@ -1325,8 +1325,8 @@
               </a>
             </div>
             <hr />
-            <div id="asf_stm_filters_body">
-              <span id="asf_stm_placeholder" style="margin-right: 15px;">No matches to filter</span>
+            <div id="asf_stm_filters_body" style="display:flex;flex-wrap:wrap">
+              <span id="asf_stm_placeholder">No matches to filter</span>
             </div>
           </div>
           <div style="position: fixed;z-index: 1000;right: 5px;bottom: 5px;" id="asf_stm_filters_button_div">
