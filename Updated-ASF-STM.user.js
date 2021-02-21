@@ -356,7 +356,7 @@
         let strTitle = 'Warning';
         let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
         let strButton = 'Add to blacklist';
-        window.ShowConfirmDialog( strTitle, elWarning, strButton ).done( fnReady );
+        unsafeWindow.ShowConfirmDialog( strTitle, elWarning, strButton ).done( fnReady );
     }
 
     function addToBlacklist(steamID, username, avatar) {
@@ -378,7 +378,7 @@
 
     function showBlacklist() {
         let modalLoadingHTML = '<div class="group_invite_throbber"><img src="https://community.akamai.steamstatic.com/public/images/login/throbber.gif"></div>';
-        let blacklistModal = ShowAlertDialog('Blacklist', modalLoadingHTML, 'Cancel');
+        let blacklistModal = unsafeWindow.ShowAlertDialog('Blacklist', modalLoadingHTML, 'Cancel');
         let buttons = blacklistModal.GetContent().find('.newmodal_buttons').detach();
 
         let blacklistedAccounts = '';
