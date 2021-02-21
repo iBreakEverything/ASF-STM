@@ -12,22 +12,28 @@
 // @include       http*://steamcommunity.com/id/*/badges/
 // @include       http*://steamcommunity.com/profiles/*/badges
 // @include       http*://steamcommunity.com/profiles/*/badges/
-// @version       2.0.6
+// @version       2.1.0
 // @icon          https://raw.githubusercontent.com/iBreakEverything/Updated-ASF-STM/master/asf-stm.png
 // @connect       asf.justarchi.net
 // @grant         GM.xmlHttpRequest
 // @grant         GM_xmlhttpRequest
+// @grant         GM.setValue
+// @grant         GM_setValue
+// @grant         GM.getValue
+// @grant         GM_getValue
 // ==/UserScript==
 
 (function() {
     "use strict";
-    const tradeMessage = `Trade was sent using Updated-ASF-STM script version ${GM_info.script.version}!`;
-    const limiter = 0;
-    const errorLimiter = 1000;
-    const debug = false;
-    const maxErrors = 5;
-    const filterBackgroundColor = '#171A21E6';
+    const TRADE_MESSAGE = `Trade was sent using Updated-ASF-STM script version ${GM_info.script.version}!`;
+    const LIMITER = 0;
+    const ERROR_LIMITER = 1000;
+    const DEBUG = false;
+    const MAX_ERRORS = 5;
+    const FILTER_BACKGROUND_COLOR = '#171A21E6';
+    const BLACKLIST_NAME = 'blacklist';
     let errors = 0;
+    let blacklist = [];
     let bots;
     let assets = [];
     let myAssets = [];
@@ -40,19 +46,19 @@
     let steamLoginSecure = "";
 
     function debugTime(name) {
-        if (debug) {
+        if (DEBUG) {
             console.time(name);
         }
     }
 
     function debugTimeEnd(name) {
-        if (debug) {
+        if (DEBUG) {
             console.timeEnd(name);
         }
     }
 
     function debugPrint(msg) {
-        if (debug) {
+        if (DEBUG) {
             console.log(msg);
         }
     }
@@ -74,16 +80,14 @@
     }
 
     function enableButton() {
-        let buttonDiv = document.getElementById("asf_stm_button_div");
-        buttonDiv.setAttribute("class", "profile_small_header_additional");
         let button = document.getElementById("asf_stm_button");
+        button.removeClassName('btn_disabled')
         button.addEventListener("click", buttonPressedEvent, false);
     }
 
     function disableButton() {
-        let buttonDiv = document.getElementById("asf_stm_button_div");
-        buttonDiv.setAttribute("class", "profile_small_header_additional btn_disabled");
         let button = document.getElementById("asf_stm_button");
+        button.addClassName('btn_disabled')
         button.removeEventListener("click", buttonPressedEvent, false);
     }
 
@@ -234,44 +238,44 @@
             let tradeUrlApp = tradeUrl + "&them=" + receiveResult.classList + "&you=" + sendResult.classList;
 
             let matchTemplate = `
-                  <div class="asf_stm_appid_${appId}" style="display:${display}">
-                    <div class="badge_row is_link goo_untradable_note showcase_slot">
-                      <div class="badge_content" style="display:grid;justify-content: center">
-                        <div title="View ${gameName} badge progress" style="justify-content: center;display: flex">
-                          <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">
-                            <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
-                          </a>
+              <div class="asf_stm_appid_${appId}" style="display:${display}">
+                <div class="badge_row is_link goo_untradable_note showcase_slot">
+                  <div class="badge_content" style="display:grid;justify-content: center">
+                    <div title="View ${gameName} badge progress" style="justify-content: center;display: flex">
+                      <a target="_blank" href="https://steamcommunity.com/my/gamecards/${appId}/">
+                        <img alt="${gameName}" src="https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_184x69.jpg">
+                      </a>
+                    </div>
+                    <div style="justify-content: space-between;display: flex;">
+                      <a href="${tradeUrlApp}" target="_blank" rel="noopener">
+                        <div class="btn_darkblue_white_innerfade btn_medium">
+                          <span>
+                            Offer a trade
+                          </span>
                         </div>
-                        <div style="justify-content: space-between;display: flex;">
-                          <a href="${tradeUrlApp}" target="_blank" rel="noopener">
-                            <div class="btn_darkblue_white_innerfade btn_medium">
-                              <span>
-                                Offer a trade
-                              </span>
-                            </div>
-                          </a>
-                          <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
-                            <span>Filter</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="showcase_slot">
-                        <div class="showcase_slot profile_header">
-                          <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
-                          ${sendResult.htmlCards}
-                        </div>
-                        <span class="showcase_slot badge_info_title booster_creator_actions">
-                          <h1>&#10145;</h1>
-                        </span>
-                      </div>
-                      <div class="showcase_slot profile_header">
-                        <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
-                          ${profile.username}
-                        </div>
-                        ${receiveResult.htmlCards}
+                      </a>
+                      <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('astm_${appId}',false)">
+                        <span>Filter</span>
                       </div>
                     </div>
                   </div>
+                  <div class="showcase_slot">
+                    <div class="showcase_slot profile_header">
+                      <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_in-game badge_info_title badge_row_overlay" style="height: 15px;">You</div>
+                      ${sendResult.htmlCards}
+                    </div>
+                    <span class="showcase_slot badge_info_title booster_creator_actions">
+                      <h1>&#10145;</h1>
+                    </span>
+                  </div>
+                  <div class="showcase_slot profile_header">
+                    <div class="badge_info_unlocked profile_xp_block_mid avatar_block_status_online badge_info_title badge_row_overlay ellipsis" style="height: 15px;">
+                      ${profile.username}
+                    </div>
+                    ${receiveResult.htmlCards}
+                  </div>
+                </div>
+              </div>
             `;
             if (checkBox == null || checkBox.checked) {
                 matches += matchTemplate;
@@ -290,45 +294,50 @@
         let tradeUrlFull = tradeUrl + "&them=" + globalThem + "&you=" + globalYou;
         let invObject = inventoryCountParser(bots[index].items_count);
         let rowTemplate = `
-            <div id="asfstmbot_${index}" class="badge_row">
-              <div class="badge_row_inner">
-                <div class="badge_title_row guide_showcase_contributors">
-                  <div class="badge_title_stats">
-                    <div class="btn_darkblue_white_innerfade btn_medium" id="send${index}">
-                      <span>
-                        Send Trade Request
-                      </span>
-                    </div>
-                    <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
-                      <span>
-                        Filter all
-                      </span>
-                    </div>
-                    <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener">
-                      <div class="btn_darkblue_white_innerfade btn_medium">
-                        <span>
-                          Offer a trade for all
-                        </span>
-                      </div>
-                    </a>
+          <div id="asfstmbot_${index}" class="badge_row">
+            <div class="badge_row_inner">
+              <div class="badge_title_row guide_showcase_contributors">
+                <div class="badge_title_stats">
+                  <div class="btn_darkblue_white_innerfade btn_medium" id="send_${index}">
+                    <span>
+                      Send Trade Request
+                    </span>
                   </div>
-                  <div class="badge_title">
-                    <div style="display:flex">
-                      <div class="playerAvatar ${profile.onlineState}" style="margin-right:5px;">
-                        <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener">
-                          <img src="${profile.avatar}">
-                        </a>
-                      </div>
-                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${profile.username}</span></a>
-                      ${any}
-                      <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                  <div class="btn_darkblue_white_innerfade btn_medium" onclick="filterAppId('${output}',true)">
+                    <span>
+                      Filter all
+                    </span>
+                  </div>
+                  <a class="full_trade_url" href="${tradeUrlFull}" id="full_trade_${index}" target="_blank" rel="noopener">
+                    <div class="btn_darkblue_white_innerfade btn_medium">
+                      <span>
+                        Offer a trade for all
+                      </span>
                     </div>
+                  </a>
+                  <div class="btn_darkred_white_innerfade btn_medium_thin" id="blacklist_${index}">
+                    <span>
+                      🚫
+                    </span>
                   </div>
                 </div>
-                <div class="badge_title_rule"></div>
-                ${matches}
+                <div class="badge_title">
+                  <div style="display:flex">
+                    <div class="playerAvatar ${profile.onlineState}" style="margin-right:5px;">
+                      <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener">
+                        <img src="${profile.avatar}">
+                      </a>
+                    </div>
+                    <a href="https://steamcommunity.com/profiles/${bots[index].steam_id}/" target="_blank" rel="noopener"><span>${profile.username}</span></a>
+                    ${any}
+                    <span style="font-size:16px;color:${invObject.color};margin-left:5px;">${invObject.number} items</span>
+                  </div>
+                </div>
               </div>
+              <div class="badge_title_rule"></div>
+              ${matches}
             </div>
+          </div>
         `;
         let template = document.createElement("template");
         template.innerHTML = rowTemplate.trim();
@@ -336,11 +345,119 @@
         let newChild = template.content.firstChild;
         mainContentDiv.appendChild(newChild);
         checkRow(newChild);
-        document.querySelector(`#send${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
+        document.querySelector(`#send_${index}`).addEventListener("click", sendPostRequest.bind(null, index), false);
+        document.querySelector(`#blacklist_${index}`).addEventListener("click", confirmAddToBlacklist.bind(null, index, profile.username, profile.avatar), false);
+    }
+
+    function confirmAddToBlacklist(index, username, avatar) {
+        let fnReady = function() {
+            addToBlacklist(bots[index].steam_id, username, avatar);
+            document.querySelector(`#asfstmbot_${index}`).remove()
+        };
+        let strTitle = 'Warning';
+        let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
+        let strButton = 'Add to blacklist';
+        unsafeWindow.ShowConfirmDialog( strTitle, elWarning, strButton ).done( fnReady );
+    }
+
+    function addToBlacklist(steamID, username, avatar) {
+        if ( (! blacklist.length) || (! blacklist.find(entry => entry.steamID == steamID)) ) {
+            blacklist.push({"steamID":steamID, "username":username, "avatar":avatar});
+            updateBlacklist();
+        }
+    }
+
+    async function getBlacklist() {
+        let promiseBlacklist = [];
+        try {
+            promiseBlacklist = await GM.getValue(BLACKLIST_NAME, '[]');
+        } catch(e) {
+            console.log('Failed to get blacklist: ' + e);
+        }
+        blacklist = JSON.parse(promiseBlacklist);
+    }
+
+    async function showBlacklist() {
+        let modalLoadingHTML = '<div class="group_invite_throbber"><img src="https://community.akamai.steamstatic.com/public/images/login/throbber.gif"></div>';
+        let blacklistModal = unsafeWindow.ShowAlertDialog('Blacklist', modalLoadingHTML, 'Cancel');
+        let buttons = blacklistModal.GetContent().find('.newmodal_buttons').detach();
+
+        await getBlacklist();
+
+        let blacklistedAccounts = '';
+
+        let colsView = '';
+        if (blacklist.length > 10) {
+            colsView = 'cols';
+        }
+
+        if (blacklist.length) {
+            for (let account of blacklist) {
+                let accountHTML = `
+                  <div class="friendBlock persona offline" id="blacklist_${account.steamID}">
+                    <a href="https://steamcommunity.com/profiles/${account.steamID}/" target="_blank" rel="noopener">
+                      <div class="playerAvatar offline">
+                        <img src="${account.avatar}">
+                      </div>
+                    </a>
+                    <div class="friendBlockContent">
+                      ${account.username}<br>
+                      <span class="friendSmallText">
+                        ${account.steamID}
+                      </span>
+                      <div class="btn_green_white_innerfade btn_small_thin" id="remove_blacklist_${account.steamID}" steamid= title="Remve from blacklist" style="position: absolute;right: 3%;top: 25%;">
+                        <span>❌</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                blacklistedAccounts += accountHTML;
+            }
+        } else {
+            blacklistedAccounts = '<span>Blacklist is empty.</span>'
+        }
+
+        let blacklistElement = `
+          <div class="player_list_ctn">
+            <div class="player_list_results responsive_friendblocks ${colsView}">
+              ${blacklistedAccounts}
+              <div style="clear: left;"></div>
+            </div>
+          </div>
+        `;
+
+        let blacklistContent = blacklistModal.GetContent().find('.newmodal_content');
+        blacklistContent.html(''); // erase the throbber
+        blacklistContent.append(blacklistElement);
+        blacklistContent.append(buttons);
+        blacklistModal.AdjustSizing();
+
+        if (blacklist.length) {
+            for (let account of blacklist) { // there must be a better way, maybe
+                document.querySelector(`#remove_blacklist_${account.steamID}`).addEventListener("click", removeFromBlacklist.bind(null, account.steamID), false);
+            }
+        }
+    }
+
+    function removeFromBlacklist(steamID) {
+        let blacklistElement = document.querySelector(`#blacklist_${steamID}`);
+        if (blacklistElement) {
+            blacklistElement.remove();
+        }
+        let removeIndex = blacklist.findIndex(entry => entry.steamID == steamID);
+        if (removeIndex >= 0) {
+            blacklist.splice(removeIndex, 1);
+            updateBlacklist();
+        }
+    }
+
+    function updateBlacklist() {
+        let blacklistString = JSON.stringify(blacklist);
+        GM.setValue(BLACKLIST_NAME, blacklistString);
     }
 
     function sendPostRequest(index) {
-        let htmlButton = document.querySelector(`#send${index}`);
+        let htmlButton = document.querySelector(`#send_${index}`);
         htmlButton.children[0].innerText = "Sending Offer..."
         let htmlElem = document.querySelector(`#full_trade_${index}`);
         let link = htmlElem.href.split('?')[1].split('&');
@@ -374,7 +491,7 @@
             `sessionid=${sessionid}&`,
             "serverid=1&",
             `partner=${steam64ID}&`,
-            `tradeoffermessage=${encodeURIComponent(tradeMessage)}&`,
+            `tradeoffermessage=${encodeURIComponent(TRADE_MESSAGE)}&`,
             `json_tradeoffer=${encodeURIComponent(JSON.stringify(tradeOfferObject))}&`,
             "captcha=&",
             `trade_offer_create_params=${encodeURIComponent('{"')}trade_offer_access_token${encodeURIComponent('":"')}${token}${encodeURIComponent('"}')}`
@@ -496,12 +613,12 @@
             if (status == 403) {
                 assets.length = 0; //switch to next bot
                 callback();
-            } else if ((status < 400 || status >= 500 || status == 408) && (errors <= maxErrors)) {
+            } else if ((status < 400 || status >= 500 || status == 408) && (errors <= MAX_ERRORS)) {
                 setTimeout((function(steamId, startAsset, callback) {
                     return function() {
                         fetchInventory(steamId, startAsset, callback);
                     };
-                })(steamId, lastAsset, callback), limiter+errorLimiter*errors);
+                })(steamId, lastAsset, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 updateMessage("Error getting inventory, ERROR " + status);
                 hideThrobber();
@@ -521,12 +638,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(steamId, startAsset, callback) {
                     return function() {
                         fetchInventory(steamId, startAsset, callback);
                     };
-                })(steamId, startAsset, callback), limiter+errorLimiter*errors);
+                })(steamId, startAsset, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error getting inventory");
                 updateMessage("Error getting inventory");
@@ -743,12 +860,12 @@
                     return;
                 }
                 errors++;
-                if (errors <= maxErrors) {
+                if (errors <= MAX_ERRORS) {
                     setTimeout((function(index, callback) {
                         return function() {
                             getUsername(index, callback);
                         };
-                    })(index, callback), limiter+errorLimiter*errors);
+                    })(index, callback), LIMITER+ERROR_LIMITER*errors);
                 } else {
                     debugPrint("error HTTP Status=" + status);
                     updateMessage("Error getting username data, ERROR=" + status);
@@ -770,12 +887,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(index, callback) {
                     return function() {
                         getUsername(index, callback);
                     };
-                })(index, callback), limiter+errorLimiter*errors);
+                })(index, callback), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error");
                 updateMessage("Error getting username data");
@@ -787,13 +904,18 @@
             }
         };
         xhr.send();
-
     }
 
     function checkUser(index) {
         debugPrint(index);
         updateMessage("Fetching bot " + (index + 1).toString() + " of " + bots.length.toString());
         updateProgress(index);
+        if (blacklist.length) {
+            if (blacklist.find(enrty => enrty.steamID == bots[index].steam_id)) {
+                debugPrint("Bot blacklisted. Skipping...");
+                return checkUser(index + 1);
+            }
+        }
         fetchInventory(bots[index].steam_id, 0, function() {
             debugPrint(bots[index].steam_id);
             debugPrint(assets.length);
@@ -804,7 +926,7 @@
                         return function() {
                             checkUser(index);
                         };
-                    })(index + 1), limiter);
+                    })(index + 1), LIMITER);
                 } else {
                     debugPrint("finished");
                     debugPrint(new Date(Date.now()));
@@ -919,12 +1041,12 @@
                     } else {
                         errors++;
                     }
-                    if ((status < 400 || status >= 500) && (errors <= maxErrors)) {
+                    if ((status < 400 || status >= 500) && (errors <= MAX_ERRORS)) {
                         setTimeout((function(index) {
                             return function() {
                                 populateMaxCards(index);
                             };
-                        })(index), limiter+errorLimiter*errors);
+                        })(index), LIMITER+ERROR_LIMITER*errors);
                     } else {
                         updateMessage("Error getting badge data, ERROR " + status);
                         hideThrobber();
@@ -945,12 +1067,12 @@
                         return;
                     }
                     errors++;
-                    if (errors <= maxErrors) {
+                    if (errors <= MAX_ERRORS) {
                         setTimeout((function(index) {
                             return function() {
                                 populateMaxCards(index);
                             };
-                        })(index), limiter+errorLimiter*errors);
+                        })(index), LIMITER+ERROR_LIMITER*errors);
                         return;
                     } else {
                         debugPrint("error");
@@ -1050,13 +1172,13 @@
             } else {
                 errors++;
             }
-            if ((status < 400 || status >= 500) && (errors <= maxErrors)) {
+            if ((status < 400 || status >= 500) && (errors <= MAX_ERRORS)) {
                 if (page <= maxPages) {
                     setTimeout((function(page) {
                         return function() {
                             getBadges(page);
                         };
-                    })(page), limiter+errorLimiter*errors);
+                    })(page), LIMITER+ERROR_LIMITER*errors);
                 } else {
                     debugPrint("all badge pages processed");
                     if (myBadges.length === 0) {
@@ -1089,12 +1211,12 @@
                 return;
             }
             errors++;
-            if (errors <= maxErrors) {
+            if (errors <= MAX_ERRORS) {
                 setTimeout((function(page) {
                     return function() {
                         getBadges(page);
                     };
-                })(page), limiter+errorLimiter*errors);
+                })(page), LIMITER+ERROR_LIMITER*errors);
             } else {
                 debugPrint("error getting badge page");
                 updateMessage("Error getting badge page");
@@ -1190,7 +1312,7 @@
             </div>
           </div>
           <div id="asf_stm_filters" style="position: fixed; z-index: 1000; right: 5px; bottom: 45px; transition-duration: 500ms;
-              transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${filterBackgroundColor} ;color: #67c1f5;">
+              transition-timing-function: ease; margin-right: -50%;padding: 5px;max-width: 40%;display: inline-block;border-radius: 2px;background: ${FILTER_BACKGROUND_COLOR} ;color: #67c1f5;">
             <div style="white-space: nowrap;">Select:
               <a id="asf_stm_filter_all" class="commentthread_pagelinks">
                 All
@@ -1222,6 +1344,8 @@
         maxPages = 1;
         stop = false;
         myBadges.length = 0;
+        updateMessage("Getting blacklist...");
+        getBlacklist();
         getBadges(1);
     }
 
@@ -1290,18 +1414,18 @@
                     return result;
                 });
                 debugPrint("found total " + bots.length + " bots");
-                let buttonDiv = document.createElement("div");
-                buttonDiv.setAttribute("class", "profile_small_header_additional");
-                buttonDiv.setAttribute("style", "margin-top: 40px;");
-                buttonDiv.setAttribute("id", "asf_stm_button_div");
-                let button = document.createElement("a");
-                button.setAttribute("class", "btnv6_blue_hoverfade btn_medium");
-                button.setAttribute("id", "asf_stm_button");
-                button.appendChild(document.createElement("span"));
-                button.firstChild.appendChild(document.createTextNode("Scan ASF STM"));
-                buttonDiv.appendChild(button);
                 let anchor = document.getElementsByClassName("profile_small_header_texture")[0];
-                anchor.appendChild(buttonDiv);
+                anchor.innerHTML += `
+                  <div class="profile_small_header_additional" style="margin-top: 40px;">
+                    <div class="btnv6_blue_hoverfade btn_medium" id="asf_stm_button">
+                      <span>Scan ASF STM</span>
+                    </div>
+                    <div class="btnv6_blue_hoverfade btn_medium" id="view_blacklist" style="background:#c31b1b;margin-left:5px">
+                      <span style="background:#375064">View Blacklist</span>
+                    </div>
+                  </div>
+                `;
+                document.querySelector(`#view_blacklist`).addEventListener("click", showBlacklist.bind(null), false);
                 enableButton();
                 addJS_Node(null, null, filterAppId);
             },
