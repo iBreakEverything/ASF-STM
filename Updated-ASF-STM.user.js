@@ -538,7 +538,6 @@
         let assetIDs = [];
         for (let obj of assetObject) {
             if (parsedClassIDs.find(id => id == obj.classid)) {
-                parsedClassIDs[parsedClassIDs.findIndex(id => id == obj.classid)] = -1
                 parsedClassIDs[parsedClassIDs.findIndex((id) => id == obj.classid)] = -1;
                 assetIDs.push({
                     appid: obj.appid,
