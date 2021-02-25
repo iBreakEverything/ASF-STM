@@ -81,13 +81,13 @@
 
     function enableButton() {
         let button = document.getElementById("asf_stm_button");
-        button.removeClassName('btn_disabled')
+        button.removeClassName('btn_disabled');
         button.addEventListener("click", buttonPressedEvent, false);
     }
 
     function disableButton() {
         let button = document.getElementById("asf_stm_button");
-        button.addClassName('btn_disabled')
+        button.addClassName('btn_disabled');
         button.removeEventListener("click", buttonPressedEvent, false);
     }
 
@@ -352,7 +352,7 @@
     function confirmAddToBlacklist(index, username, avatar) {
         let fnReady = function() {
             addToBlacklist(bots[index].steam_id, username, avatar);
-            document.querySelector(`#asfstmbot_${index}`).remove()
+            document.querySelector(`#asfstmbot_${index}`).remove();
         };
         let strTitle = 'Warning';
         let elWarning = `Do you want to add <strong>${username}</strong> to blacklist?`;
@@ -414,7 +414,7 @@
                 blacklistedAccounts += accountHTML;
             }
         } else {
-            blacklistedAccounts = '<span>Blacklist is empty.</span>'
+            blacklistedAccounts = '<span>Blacklist is empty.</span>';
         }
 
         let blacklistElement = `
@@ -458,7 +458,7 @@
 
     function sendPostRequest(index) {
         let htmlButton = document.querySelector(`#send_${index}`);
-        htmlButton.children[0].innerText = "Sending Offer..."
+        htmlButton.children[0].innerText = "Sending Offer...";
         let htmlElem = document.querySelector(`#full_trade_${index}`);
         let link = htmlElem.href.split('?')[1].split('&');
         let partnerClassIDs = link[3].split('=')[1];
@@ -539,6 +539,7 @@
         for (let obj of assetObject) {
             if (parsedClassIDs.find(id => id == obj.classid)) {
                 parsedClassIDs[parsedClassIDs.findIndex(id => id == obj.classid)] = -1
+                parsedClassIDs[parsedClassIDs.findIndex((id) => id == obj.classid)] = -1;
                 assetIDs.push({
                     appid: obj.appid,
                     contextid: obj.contextid,
@@ -1101,7 +1102,7 @@
             debugPrint(deepClone(descriptions));
             debugPrint("our cards");
             debugPrint(deepClone(myBadges));
-            myAssets = assets
+            myAssets = assets;
             populateExistingCards(myBadges, true);
             if (myBadges.length === 0) {
                 hideThrobber();
@@ -1447,7 +1448,9 @@
     if (sessionid === "" || steamLoginSecure === "") {
         let cookiesString = document.cookie.split(';');
         let cookiesParsed = {};
-        cookiesString.forEach(elem => {cookiesParsed[elem.split('=')[0].trim()] = elem.split('=')[1]});
+        cookiesString.forEach(elem => {
+            cookiesParsed[elem.split('=')[0].trim()] = elem.split('=')[1];
+        });
         sessionid = cookiesParsed.sessionid;
         steamLoginSecure = cookiesParsed.steamLoginSecure;
     }
